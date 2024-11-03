@@ -9,6 +9,9 @@
         app:showAsAction="ifRoom"
     />
     <item
-        android:id="@+id/menuSettings"
+        android:id="@+id/usuariosDisponible"
         android:title="@string/menuConfiguracion" />
+    <item
+        android:id="@+id/listaUsuarios"
+        android:title="@string/usuariosDisponible" />
 </menu>

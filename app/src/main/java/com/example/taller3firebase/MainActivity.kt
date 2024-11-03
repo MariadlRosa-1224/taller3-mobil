@@ -40,6 +40,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        binding.registerButton.setOnClickListener {
+            val i = Intent(this, registerActivity::class.java)
+            startActivity(i)
+        }
+
     }
 
     // Si el usuario ya ha iniciado sesión, ir al MapsActivity

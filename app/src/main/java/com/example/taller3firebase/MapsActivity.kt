@@ -53,7 +53,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(i)
         }
+
+        if(clicked == R.id.usuariosDisponible){
+            establecerDisponibilidad()
+        }
+
+        if(clicked == R.id.listaUsuarios){
+            val i = Intent(this, UsuariosDisponiblesActivity::class.java)
+            startActivity(i)
+        }
+
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun establecerDisponibilidad() {
+        TODO("Not yet implemented")
     }
 
     /**

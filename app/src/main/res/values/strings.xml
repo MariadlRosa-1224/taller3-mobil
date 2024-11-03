@@ -3,4 +3,5 @@
     <string name="title_activity_maps">MapsActivity</string>
     <string name="menulogout">Logout</string>
     <string name="menuConfiguracion">Establecer como disponible</string>
+    <string name="usuariosDisponible">Usuarios disponibles</string>
 </resources>
