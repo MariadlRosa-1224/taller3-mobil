@@ -163,16 +163,37 @@ class registerActivity : AppCompatActivity() {
                 OnCompleteListener<AuthResult?> { task ->
                     if (task.isSuccessful) {
                         Log.d(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful)
-                        val user: FirebaseUser? = auth.getCurrentUser()
-                        if (user != null) { //Update user Info
+                        val firebaseUser: FirebaseUser? = auth.getCurrentUser()
+                        if (firebaseUser != null) { //Update user Info
                             val upcrb = UserProfileChangeRequest.Builder()
                             upcrb.setDisplayName(
                                 nombre + " " + apellido
                                     .toString()
                             )
                             upcrb.setPhotoUri(Uri.parse("path/to/pic")) //fake uri, use Firebase Storage
-                            user.updateProfile(upcrb.build())
-                            updateUI(user)
+                            firebaseUser.updateProfile(upcrb.build())
+                            updateUI(firebaseUser)
+
+                            //crear usuario
+
+                            user = User(nombre, apellido, email, currentLocation.latitude, currentLocation.longitude)
+
+                            // guardar en la base de datos
+
+                            val uid = firebaseUser.uid
+
+
+                                myRef = database.reference.child(USERS).child(uid)
+                                myRef.setValue(user)
+
+                                // ir al mapa
+
+                                val intent = Intent(this, MapsActivity::class.java)
+                                startActivity(intent)
+
+
+
+
                         }
                     }
                     if (!task.isSuccessful) {
@@ -184,28 +205,18 @@ class registerActivity : AppCompatActivity() {
                         Log.e(TAG, task.exception!!.message!!)
                     }
 
-                    // guardar
-
-                    user = User(nombre, apellido, email, password, currentLocation.latitude, currentLocation.longitude)
 
 
 
 
-                    // guardar en la base de datos
-
-                    val key = myRef.push().key
-
-                    myRef = database.getReference(USERS + key)
-
-                    myRef.setValue(user)
 
 
 
 
-                    // ir al mapa
 
-                    val intent = Intent(this, MapsActivity::class.java)
-                    startActivity(intent)
+
+
+
 
                 })
 
