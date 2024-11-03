@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">taller3Firebase</string>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="menulogout">Logout</string>
+    <string name="menuConfiguracion">Establecer como disponible</string>
 </resources>
