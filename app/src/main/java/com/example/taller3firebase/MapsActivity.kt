@@ -207,7 +207,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun addMarkersFromJSON() {
         val filename = "locations.json"
+        // crear archivo si no existe
+
+
+
         val file = File(baseContext.getExternalFilesDir(null), filename)
+
+        if (!file.exists()) {
+            file.createNewFile()
+
+        }
 
         val jsonStr = file.readText()
         val jsonObject = JSONObject(jsonStr)

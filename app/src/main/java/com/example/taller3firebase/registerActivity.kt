@@ -148,7 +148,7 @@ class registerActivity : AppCompatActivity() {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
 
                 // Crear el archivo para guardar la imagen
-                val file = File(getExternalFilesDir(null), "picFromCamera.jpg")
+                val file = File(getFilesDir(), "picFromCamera.jpg")
                 uriCamera = FileProvider.getUriForFile(this, "${packageName}.fileprovider", file)
 
                 // Iniciar la Intent para capturar la imagen
@@ -156,6 +156,9 @@ class registerActivity : AppCompatActivity() {
             } else {
                 // Solicitar permisos si no están otorgados
                 getSimplePermission.launch(Manifest.permission.CAMERA)
+
+
+
 
             }
         }
@@ -171,7 +174,7 @@ class registerActivity : AppCompatActivity() {
 
 
 
-    fun updateUI(user: FirebaseUser) {
+    fun updateUI() {
         //lleva al mapa
         val intent = Intent(this, MapsActivity::class.java)
         startActivity(intent)
@@ -198,7 +201,7 @@ class registerActivity : AppCompatActivity() {
                             )
                             upcrb.setPhotoUri(Uri.parse("path/to/pic")) //fake uri, use Firebase Storage
                             firebaseUser.updateProfile(upcrb.build())
-                            updateUI(firebaseUser)
+
 
                             //crear usuario
 
@@ -218,8 +221,7 @@ class registerActivity : AppCompatActivity() {
 
                                 // ir al mapa
 
-                                val intent = Intent(this, MapsActivity::class.java)
-                                startActivity(intent)
+                            updateUI()
 
 
 
