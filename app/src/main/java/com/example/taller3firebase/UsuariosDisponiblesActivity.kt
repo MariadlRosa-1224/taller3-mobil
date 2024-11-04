@@ -1,12 +1,8 @@
 package com.example.taller3firebase
 
 import android.os.Bundle
-import android.widget.ArrayAdapter
-import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.taller3firebase.databinding.ActivityUsuariosDisponiblesBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -15,20 +11,28 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.getValue
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import model.User
 import model.adapterUsers
+import java.io.File
+import java.io.IOException
+
 
 class UsuariosDisponiblesActivity : AppCompatActivity() {
     private lateinit var binding: ActivityUsuariosDisponiblesBinding
 
     lateinit var auth: FirebaseAuth
-    lateinit var myRef: DatabaseReference
+    private lateinit var myRef: DatabaseReference
+
+    lateinit var storageReference: StorageReference
 
     val users = "users/"
 
     var usersList = mutableListOf<User>()
 
-    val adapterUsers = adapterUsers(this, usersList)
+
+
 
     lateinit var vel : ValueEventListener
 
@@ -43,6 +47,8 @@ class UsuariosDisponiblesActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
+
+        storageReference = FirebaseStorage.getInstance().reference
 
 
         subscribeToUserChanges()
@@ -61,7 +67,11 @@ class UsuariosDisponiblesActivity : AppCompatActivity() {
                 //binding.listUsers.removeAllViews()
                 for(child in snapshot.children){
                     val user = child.getValue<User>()
-                    usersList.add(user!!)
+                    if(user!!.disponible){
+                        downloadFile(child.key!!, user)
+                        usersList.add(user)
+                    }
+
 
                 }
 
@@ -83,6 +93,27 @@ class UsuariosDisponiblesActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         subscribeToUserChanges()
+    }
+
+
+    @Throws(IOException::class)
+    private fun downloadFile(uid : String, user: User) {
+        val localFile = File.createTempFile("images", "jpg")
+        val imageRef: StorageReference = storageReference.child("images/profile/${uid}/image.jpg")
+        imageRef.getFile(localFile)
+            .addOnSuccessListener {
+                // Successfully downloaded data to local file
+// ...
+                Log.i("FBApp", "succesfully downloaded")
+
+                // put the image in the user object
+
+                user.image = localFile
+
+            }.addOnFailureListener {
+                // Handle failed download
+// ...
+            }
     }
 
 }

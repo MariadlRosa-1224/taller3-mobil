@@ -1,5 +1,7 @@
 package model
 
+import java.io.File
+
 class User {
     var nombre: String? = ""
     var apellido: String? = ""
@@ -7,6 +9,7 @@ class User {
     var latitud: Double? = 0.0
     var longitud: Double? = 0.0
     var disponible: Boolean = false
+    var image : File? = null
 
     constructor() {}
 
@@ -17,6 +20,7 @@ class User {
         this.latitud = latitud
         this.longitud = longitud
         this.disponible = false
+        this.image = null
     }
 
 }
