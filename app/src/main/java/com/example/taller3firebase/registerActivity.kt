@@ -1,7 +1,6 @@
 package com.example.taller3firebase
 
 import android.Manifest
-import android.R
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -25,6 +24,8 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import model.User
 import java.io.File
 
@@ -47,7 +48,7 @@ class registerActivity : AppCompatActivity() {
 
     val getContentGallery = registerForActivityResult(
         ActivityResultContracts.GetContent(), ActivityResultCallback {
-            loadImage(it!!)
+            uriCamera = it!!
         })
 
     // foto de camara
@@ -56,9 +57,9 @@ class registerActivity : AppCompatActivity() {
 
     val getContentCamera = registerForActivityResult(
         ActivityResultContracts.TakePicture(), ActivityResultCallback {
-            if (it){
-                loadImage(uriCamera)
-            }
+        if (it) {
+            uriCamera = uriCamera
+        }
         })
 
 
@@ -73,6 +74,8 @@ class registerActivity : AppCompatActivity() {
             }
         })
 
+
+
     //  firebase Database
 
     private lateinit var database : FirebaseDatabase
@@ -81,6 +84,9 @@ class registerActivity : AppCompatActivity() {
     val USERS = "users/"
 
 
+    // storage
+
+    private lateinit var mStorageRef: StorageReference
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,9 +104,14 @@ class registerActivity : AppCompatActivity() {
 
             //permiso
 
+
+
         getSimplePermission.launch(Manifest.permission.ACCESS_FINE_LOCATION)
 
 
+        // storage
+
+        mStorageRef = FirebaseStorage.getInstance().reference
 
 
         // Obtener info del usuario con los campos del formulario
@@ -120,18 +131,33 @@ class registerActivity : AppCompatActivity() {
 
         }
 
+        // file for saving image from camera
+
+        val file = File(getFilesDir(),"picFromCamera")
+        uriCamera = FileProvider.getUriForFile(baseContext,baseContext.packageName + ".fileprovider",file)
+
         // Obtener foto del usuario (galeria y camara)
 
         binding.ImageButton.setOnClickListener {
             getContentGallery.launch("image/*")
         }
 
-            // file for saving image from camera
-            val file = File(getFilesDir(),"picFromCamera")
-            uriCamera = FileProvider.getUriForFile(baseContext,baseContext.packageName + ".fileprovider",file)
+
 
         binding.tomarFoto.setOnClickListener {
-            getContentCamera.launch(uriCamera)
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+
+                // Crear el archivo para guardar la imagen
+                val file = File(getExternalFilesDir(null), "picFromCamera.jpg")
+                uriCamera = FileProvider.getUriForFile(this, "${packageName}.fileprovider", file)
+
+                // Iniciar la Intent para capturar la imagen
+                getContentCamera.launch(uriCamera)
+            } else {
+                // Solicitar permisos si no están otorgados
+                getSimplePermission.launch(Manifest.permission.CAMERA)
+
+            }
         }
 
         // database
@@ -183,8 +209,12 @@ class registerActivity : AppCompatActivity() {
                             val uid = firebaseUser.uid
 
 
-                                myRef = database.reference.child(USERS).child(uid)
-                                myRef.setValue(user)
+                            myRef = database.reference.child(USERS).child(uid)
+                            myRef.setValue(user)
+
+                            // Subir foto
+
+                            loadImage(uriCamera, uid)
 
                                 // ir al mapa
 
@@ -255,8 +285,17 @@ class registerActivity : AppCompatActivity() {
 
     // Cargar imagen de la galeria
 
-    private fun loadImage(it: Uri) {
+    private fun loadImage(uri: Uri, uid: String) {
 
+        val imageRef: StorageReference = mStorageRef.child("images/profile/$uid/image.jpg")
+        imageRef.putFile(uri)
+            .addOnSuccessListener { // Get a URL to the uploaded content
+                Log.i("FBApp", "Succesfully upload image")
+            }
+            .addOnFailureListener {
+                // Handle unsuccessful uploads
+// ...
+            }
     }
 
 
