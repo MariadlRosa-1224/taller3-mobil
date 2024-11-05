@@ -207,9 +207,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun addMarkersFromJSON() {
         val filename = "locations.json"
-        // crear archivo si no existe
-
-
 
         val file = File(baseContext.getExternalFilesDir(null), filename)
 
@@ -229,7 +226,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val name = location.getString("name")
             val latLng = LatLng(lat, lon)
 
-            val originalIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_launcher_foreground)
+            val originalIcon = BitmapFactory.decodeResource(resources, R.drawable.marker)
             val scaledIcon = Bitmap.createScaledBitmap(originalIcon, 100, 100, false)
 
             val markerOptions = MarkerOptions()
