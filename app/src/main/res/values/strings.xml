@@ -4,7 +4,6 @@
     <string name="menulogout">Logout</string>
     <string name="menuConfiguracion">Establecer como disponible</string>
     <string name="usuariosDisponible">Usuarios disponibles</string>
-    <string name="title_activity_maps_distance">MapsDistanceActivity</string>
     <string name="title_activity_maps2">MapsActivity2</string>
     <string name="title_activity_maps3">MapsActivity3</string>
 </resources>
