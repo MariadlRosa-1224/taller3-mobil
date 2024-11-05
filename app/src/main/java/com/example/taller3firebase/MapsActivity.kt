@@ -210,10 +210,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         val file = File(baseContext.getExternalFilesDir(null), filename)
 
-        if (!file.exists()) {
-            file.createNewFile()
-
-        }
 
         val jsonStr = file.readText()
         val jsonObject = JSONObject(jsonStr)
