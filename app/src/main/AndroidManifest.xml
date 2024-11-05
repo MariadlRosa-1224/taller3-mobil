@@ -60,15 +60,6 @@
         <activity
             android:name=".registerActivity"
             android:exported="false" />
-        <activity
-            android:name=".MapsActivity3"
-            android:exported="false"
-            android:label="@string/title_activity_maps3" />
-        <activity
-            android:name=".MapsActivity2"
-            android:exported="false"
-            android:label="@string/title_activity_maps2" />
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.taller3firebase.fileprovider"
