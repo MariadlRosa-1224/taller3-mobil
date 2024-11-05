@@ -2,10 +2,12 @@ package model
 
 import android.content.Context
 import android.database.Cursor
+import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.cursoradapter.widget.CursorAdapter
 import com.example.taller3firebase.R
@@ -29,10 +31,14 @@ class adapterUsers (private val context: Context?, private val users: List<User>
         val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.usuario, parent, false)
 
         val tvname = view!!.findViewById<TextView>(R.id.nombre)
+        val image = view.findViewById<ImageView>(R.id.userimage)
 
         val user : User = getItem(position)
         tvname.text = user.nombre // Asume que `nombre` es un campo en el objeto `User`
-
+        if (user.image != null) {
+            val bitmap = BitmapFactory.decodeFile(user.image!!.absolutePath)
+            image.setImageBitmap(bitmap)
+        }
         return view
     }
 }

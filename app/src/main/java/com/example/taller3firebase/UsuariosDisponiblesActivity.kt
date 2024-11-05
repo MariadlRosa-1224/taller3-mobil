@@ -51,7 +51,7 @@ class UsuariosDisponiblesActivity : AppCompatActivity() {
         storageReference = FirebaseStorage.getInstance().reference
 
 
-        subscribeToUserChanges()
+
 
     }
 
@@ -72,7 +72,6 @@ class UsuariosDisponiblesActivity : AppCompatActivity() {
                         usersList.add(user)
                     }
 
-
                 }
 
                 val adapter = adapterUsers(this@UsuariosDisponiblesActivity, usersList)
@@ -92,6 +91,7 @@ class UsuariosDisponiblesActivity : AppCompatActivity() {
     }
     override fun onStart() {
         super.onStart()
+
         subscribeToUserChanges()
     }
 
