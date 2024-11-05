@@ -2,11 +2,16 @@ package com.example.taller3firebase
 
 import android.content.ContentValues.TAG
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.taller3firebase.databinding.ActivityMainBinding
@@ -20,11 +25,27 @@ class MainActivity : AppCompatActivity() {
     // Autenticación de Firebase
     private lateinit var auth: FirebaseAuth
 
+    private val notificationsPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+        ActivityResultCallback {
+            if (it) {
+                Toast.makeText(this, "Permission granted to post notifications", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(this, "Permission denied to post notifications", Toast.LENGTH_LONG).show()
+            }
+        }
+    )
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notificationsPermissionRequest(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
+
 
         // Inicializar Firebase Auth
         auth = FirebaseAuth.getInstance()
@@ -45,6 +66,17 @@ class MainActivity : AppCompatActivity() {
             startActivity(i)
         }
 
+    }
+
+    private fun notificationsPermissionRequest(permission: String) {
+        if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_DENIED) {
+            if (shouldShowRequestPermissionRationale(permission)) {
+                Toast.makeText(this, "The permission is needed", Toast.LENGTH_LONG).show()
+            }
+            notificationsPermission.launch(permission)
+        } else {
+            Toast.makeText(this, "Permission granted to post notifications", Toast.LENGTH_LONG).show()
+        }
     }
 
     // Si el usuario ya ha iniciado sesión, ir al MapsActivity
