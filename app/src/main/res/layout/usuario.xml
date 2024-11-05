@@ -44,7 +44,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:padding="2dp"
-                android:text="Button" />
+                android:text="Posición Actual" />
         </LinearLayout>
 
         <TextView

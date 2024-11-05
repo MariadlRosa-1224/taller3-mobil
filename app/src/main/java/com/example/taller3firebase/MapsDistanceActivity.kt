@@ -1,17 +1,13 @@
 package com.example.taller3firebase
 
 import android.Manifest
-import android.content.Intent
-import android.location.Location
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Looper
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -23,7 +19,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.example.taller3firebase.databinding.ActivityMapsBinding
+import com.example.taller3firebase.databinding.ActivityMapsDistanceBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -32,25 +28,18 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Marker
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import org.json.JSONObject
-import java.io.File
-import com.google.android.gms.location.*
+import java.util.Date
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapsDistanceActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
-    private lateinit var binding: ActivityMapsBinding
-    private lateinit var auth: FirebaseAuth
+    private lateinit var binding: ActivityMapsDistanceBinding
     private lateinit var locationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
     private var currentLocation: Location? = null
     private var currentMarker: Marker? = null
+    private val RADIUS_OF_EARTH_KM = 6371.0
 
     private val locationPermissions = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -61,31 +50,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    //  firebase Database
-
-    private lateinit var database : FirebaseDatabase
-    private lateinit var myRef : DatabaseReference
-
-    val USERS = "users/"
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityMapsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        setSupportActionBar(binding.toolbar)
-
-        auth = FirebaseAuth.getInstance()
-
-        // firebase Database
-
-        database = FirebaseDatabase.getInstance()
-
+     binding = ActivityMapsDistanceBinding.inflate(layoutInflater)
+     setContentView(binding.root)
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
+                .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
         locationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -95,58 +68,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         locationPermissionRequest()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_map, menu)
-        return true
-    }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val clicked = item.itemId
-        if(clicked == R.id.signOut){
-            auth.signOut()
-            val i = Intent(this, MainActivity::class.java)
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            startActivity(i)
-        }
-
-        if(clicked == R.id.usuariosDisponible){
-            establecerDisponibilidad()
-        }
-
-        if(clicked == R.id.listaUsuarios){
-            val i = Intent(this, UsuariosDisponiblesActivity::class.java)
-            startActivity(i)
-        }
-
-        return super.onOptionsItemSelected(item)
-    }
-
-    private fun establecerDisponibilidad() {
-        // Establecer el usuario actual como disponible
-
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            val userUid = currentUser.uid
-            val userRef = database.getReference(USERS).child(userUid)
-
-           // valor de "disponible"
-
-            var disponibilidad = userRef.child("disponible").toString()
-
-            if (disponibilidad == "true") {
-                var update = mapOf("disponible" to false)
-                userRef.updateChildren(update)
-            } else {
-                var update = mapOf("disponible" to true)
-                userRef.updateChildren(update)
-            }
-
-
-        }
-
-
-    }
-
-
+    /**
+     * Manipulates the map once available.
+     * This callback is triggered when the map is ready to be used.
+     * This is where we can add markers or lines, add listeners or move the camera. In this case,
+     * we just add a marker near Sydney, Australia.
+     * If Google Play services is not installed on the device, the user will be prompted to install
+     * it inside the SupportMapFragment. This method will only be triggered once the user has
+     * installed Google Play services and returned to the app.
+     */
 
     private fun createLocationRequest(): LocationRequest {
         return LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
@@ -169,10 +99,37 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun updateUI(location: Location) {
-        val currentLatLng = LatLng(location.latitude, location.longitude)
+        val currentLocation = LatLng(location.latitude, location.longitude)
+
         currentMarker?.remove()
-        currentMarker = mMap.addMarker(MarkerOptions().position(currentLatLng).title("Ubicación actual"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
+        currentMarker = mMap.addMarker(MarkerOptions().position(currentLocation).title("Ubicación actual"))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 12f))
+
+        // Usuario seleccionado
+        val userLat = intent.getDoubleExtra("userLat", 0.0)
+        val userLng = intent.getDoubleExtra("userLng", 0.0)
+        val userName = intent.getStringExtra("userName")
+        val userLatLng = LatLng(userLat, userLng)
+
+        val markerIcon = BitmapFactory.decodeResource(resources, R.drawable.marker2)
+        val scaledIcon = Bitmap.createScaledBitmap(markerIcon, 100, 100, false) // Adjust the size as needed
+
+        val userMarker = BitmapDescriptorFactory.fromBitmap(scaledIcon)
+        mMap.addMarker(MarkerOptions().position(userLatLng).title(userName).icon(userMarker))
+
+        val distance = distance(currentLocation.latitude, currentLocation.longitude, userLatLng.latitude, userLatLng.longitude)
+        Toast.makeText(this, "Distancia: $distance km", Toast.LENGTH_LONG).show()
+    }
+
+    fun distance(lat1 : Double, long1: Double, lat2:Double, long2:Double) : Double{
+        val latDistance = Math.toRadians(lat1 - lat2)
+        val lngDistance = Math.toRadians(long1 - long2)
+        val a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)+
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                Math.sin(lngDistance / 2) * Math.sin(lngDistance / 2)
+        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        val result = RADIUS_OF_EARTH_KM * c;
+        return Math.round(result*100.0)/100.0;
     }
 
     private fun startLocationUpdates() {
@@ -202,31 +159,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap = googleMap
         mMap.uiSettings.isZoomControlsEnabled = true
         locationPermissionRequest()
-        addMarkersFromJSON()
     }
 
-    private fun addMarkersFromJSON() {
-        val filename = "locations.json"
-
-        val file = File(baseContext.getExternalFilesDir(null), filename)
-
-
-        val jsonStr = file.readText()
-        val jsonObject = JSONObject(jsonStr)
-        val locations = jsonObject.getJSONObject("locations")
-
-        for (i in 0 until locations.length()) {
-            val location = locations.getJSONObject(i.toString())
-            val lat = location.getDouble("latitude")
-            val lon = location.getDouble("longitude")
-            val name = location.getString("name")
-            val latLng = LatLng(lat, lon)
-
-            val markerIcon = BitmapFactory.decodeResource(resources, R.drawable.marker)
-            val scaledIcon = Bitmap.createScaledBitmap(markerIcon, 100, 100, false)
-            val pointsMarker = BitmapDescriptorFactory.fromBitmap(scaledIcon)
-            mMap.addMarker(MarkerOptions().position(latLng).title(name).icon(pointsMarker))
-        }
-    }
 }
-
