@@ -28,7 +28,6 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Marker
-import java.util.Date
 
 class MapsDistanceActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -112,7 +111,7 @@ class MapsDistanceActivity : AppCompatActivity(), OnMapReadyCallback {
         val userLatLng = LatLng(userLat, userLng)
 
         val markerIcon = BitmapFactory.decodeResource(resources, R.drawable.marker2)
-        val scaledIcon = Bitmap.createScaledBitmap(markerIcon, 100, 100, false) // Adjust the size as needed
+        val scaledIcon = Bitmap.createScaledBitmap(markerIcon, 100, 100, false)
 
         val userMarker = BitmapDescriptorFactory.fromBitmap(scaledIcon)
         mMap.addMarker(MarkerOptions().position(userLatLng).title(userName).icon(userMarker))

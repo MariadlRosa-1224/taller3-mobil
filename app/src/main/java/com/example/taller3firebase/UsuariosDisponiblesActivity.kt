@@ -1,8 +1,17 @@
 package com.example.taller3firebase
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.example.taller3firebase.databinding.ActivityUsuariosDisponiblesBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -15,11 +24,21 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import model.User
 import model.adapterUsers
+import services.UserAvailabilityService
 import java.io.File
 import java.io.IOException
 
 
 class UsuariosDisponiblesActivity : AppCompatActivity() {
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (!isGranted) {
+            Toast.makeText(this, "Permiso de notificación denegado", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private lateinit var binding: ActivityUsuariosDisponiblesBinding
 
     lateinit var auth: FirebaseAuth
@@ -53,7 +72,33 @@ class UsuariosDisponiblesActivity : AppCompatActivity() {
         adapter = adapterUsers(this@UsuariosDisponiblesActivity, usersList)
         binding.listUsers.adapter = adapter
 
+        createNotificationChannel()  // Crear el canal de notificación
+        checkNotificationPermission()
+    }
 
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "User Availability Channel"
+            val descriptionText = "Notificaciones de disponibilidad de usuarios"
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel("UserAvailabilityChannel", name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Solo para Android 13+
+            if (ContextCompat.checkSelfPermission(
+                    this, android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
     }
 
 
@@ -90,11 +135,17 @@ class UsuariosDisponiblesActivity : AppCompatActivity() {
         myRef.removeEventListener(vel)
         super.onPause()
     }
+
+
     override fun onStart() {
         super.onStart()
+        subscribeToUserChanges() // Suscripción a cambios en la lista de usuarios
 
-        subscribeToUserChanges()
+        // Iniciar el servicio
+        val serviceIntent = Intent(this, UserAvailabilityService::class.java)
+        startService(serviceIntent)
     }
+
 
 
     @Throws(IOException::class)
