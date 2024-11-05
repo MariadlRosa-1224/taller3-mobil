@@ -71,12 +71,6 @@
         </provider>
 
         <activity
-            android:name=".UsuariosDisponiblesActivity"
-            android:exported="false" />
-        <activity
-            android:name=".registerActivity"
-            android:exported="false" />
-        <activity
             android:name=".MapsActivity"
             android:exported="false"
             android:label="@string/title_activity_maps" />
