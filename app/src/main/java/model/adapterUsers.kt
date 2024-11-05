@@ -13,7 +13,7 @@ import androidx.cursoradapter.widget.CursorAdapter
 import com.example.taller3firebase.R
 import com.google.android.play.integrity.internal.c
 
-class adapterUsers (private val context: Context?, private val users: List<User>) : BaseAdapter(){
+class adapterUsers (private val context: Context?, private var users: List<User>) : BaseAdapter(){
 
     override fun getCount(): Int {
         return users.size
@@ -38,7 +38,14 @@ class adapterUsers (private val context: Context?, private val users: List<User>
         if (user.image != null) {
             val bitmap = BitmapFactory.decodeFile(user.image!!.absolutePath)
             image.setImageBitmap(bitmap)
+        }else {
+            image.setImageResource(R.drawable.user_black) // Imagen por defecto
         }
         return view
+    }
+
+    fun updateUsers(newUsers: List<User>) {
+        users = newUsers
+        notifyDataSetChanged()
     }
 }

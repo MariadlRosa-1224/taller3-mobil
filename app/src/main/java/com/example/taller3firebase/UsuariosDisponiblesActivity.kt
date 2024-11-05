@@ -31,7 +31,7 @@ class UsuariosDisponiblesActivity : AppCompatActivity() {
 
     var usersList = mutableListOf<User>()
 
-
+    private lateinit var adapter: adapterUsers
 
 
     lateinit var vel : ValueEventListener
@@ -50,7 +50,8 @@ class UsuariosDisponiblesActivity : AppCompatActivity() {
 
         storageReference = FirebaseStorage.getInstance().reference
 
-
+        adapter = adapterUsers(this@UsuariosDisponiblesActivity, usersList)
+        binding.listUsers.adapter = adapter
 
 
     }
@@ -72,10 +73,10 @@ class UsuariosDisponiblesActivity : AppCompatActivity() {
                         usersList.add(user)
                     }
 
+
                 }
 
-                val adapter = adapterUsers(this@UsuariosDisponiblesActivity, usersList)
-                binding.listUsers.adapter = adapter
+                adapter.updateUsers(usersList)
 
 
             }
@@ -109,6 +110,8 @@ class UsuariosDisponiblesActivity : AppCompatActivity() {
                 // put the image in the user object
 
                 user.image = localFile
+
+                adapter.updateUsers(usersList)
 
             }.addOnFailureListener {
                 // Handle failed download
