@@ -131,8 +131,6 @@ class registerActivity : AppCompatActivity() {
 
         }
 
-        // file for saving image from camera
-
         val file = File(getFilesDir(),"picFromCamera")
         uriCamera = FileProvider.getUriForFile(baseContext,baseContext.packageName + ".fileprovider",file)
 

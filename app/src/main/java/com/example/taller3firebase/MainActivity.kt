@@ -3,7 +3,6 @@ package com.example.taller3firebase
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -22,7 +21,6 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
 
-    // Autenticación de Firebase
     private lateinit var auth: FirebaseAuth
 
     private val notificationsPermission = registerForActivityResult(
@@ -42,12 +40,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            notificationsPermissionRequest(android.Manifest.permission.POST_NOTIFICATIONS)
-        }
-
-
         // Inicializar Firebase Auth
+
         auth = FirebaseAuth.getInstance()
 
 

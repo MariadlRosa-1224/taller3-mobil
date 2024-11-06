@@ -55,7 +55,6 @@ class MapsDistanceActivity : AppCompatActivity(), OnMapReadyCallback {
      binding = ActivityMapsDistanceBinding.inflate(layoutInflater)
      setContentView(binding.root)
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)

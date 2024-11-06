@@ -61,8 +61,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    //  firebase Database
-
     private lateinit var database : FirebaseDatabase
     private lateinit var myRef : DatabaseReference
 
@@ -78,12 +76,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         auth = FirebaseAuth.getInstance()
 
-        // firebase Database
 
         database = FirebaseDatabase.getInstance()
 
-
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -121,14 +116,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun establecerDisponibilidad() {
-        // Establecer el usuario actual como disponible
 
         val currentUser = auth.currentUser
         if (currentUser != null) {
             val userUid = currentUser.uid
             val userRef = database.getReference(USERS).child(userUid)
 
-           // valor de "disponible"
 
             var disponibilidad = userRef.child("disponible").toString()
 

@@ -103,18 +103,14 @@ class UsuariosDisponiblesActivity : AppCompatActivity() {
         val imageRef: StorageReference = storageReference.child("images/profile/${uid}/image.jpg")
         imageRef.getFile(localFile)
             .addOnSuccessListener {
-                // Successfully downloaded data to local file
 // ...
                 Log.i("FBApp", "succesfully downloaded")
-
-                // put the image in the user object
 
                 user.image = localFile
 
                 adapter.updateUsers(usersList)
 
             }.addOnFailureListener {
-                // Handle failed download
 // ...
             }
     }
